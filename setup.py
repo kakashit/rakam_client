@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-import setuptools
+from setuptools import setup, find_packages
 
 module_path = os.path.join(os.path.dirname(__file__), 'rakam/__init__.py')
 version_line = [line for line in open(module_path)
@@ -9,10 +9,11 @@ version_line = [line for line in open(module_path)
 __version__ = version_line.split('__version__ = ')[-1][1:][:-2]
 
 
-setuptools.setup(
+setup(
     name="rakam",
-    url="https://github.com/kakashit/rakam_client",
     version=__version__,
+
+    url="https://github.com/kakashit/rakam_client",
 
     author="Kaan Uğurlu",
     author_email="kugurlu94@gmail.com",
@@ -20,7 +21,8 @@ setuptools.setup(
     description="Python client for rakam server.",
     long_description=open('README.rst').read(),
 
-    py_modules=['rakam'],
+    packages=find_packages(),
+
     zip_safe=False,
     platforms='any',
 
