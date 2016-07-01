@@ -6,6 +6,13 @@ class RakamError(Exception):
     pass
 
 
+class MissingKey(Exception):
+    """
+        Required key for the action is not provided.
+    """
+    pass
+
+
 class InvalidKeyError(RakamError):
     """
         Key is used for other type of requests.
@@ -16,6 +23,13 @@ class InvalidKeyError(RakamError):
 class BadKeyError(RakamError):
     """
         Key doesn't belong to your project.
+    """
+    pass
+
+
+class ConflictError(RakamError):
+    """
+        Raised when same action is already being processed
     """
     pass
 

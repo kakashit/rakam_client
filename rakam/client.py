@@ -16,7 +16,10 @@ class RakamClient(object):
         self.connection = RakamConnection(rakam_url, **connection_kwargs)
 
     def send_bulk_events(self, events):
-        return self.connection.send_bulk_event(events)
+        return self.connection.send_bulk_events(events)
+
+    def commit_bulk_events(self, timeout=None, raise_on_read_timeout=False):
+        return self.connection.commit_bulk_events(timeout=timeout, raise_on_read_timeout=raise_on_read_timeout)
 
     def execute_sql(self, query, timeout=None):
         return self.connection.execute_sql(query, timeout=timeout)
