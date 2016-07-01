@@ -113,7 +113,7 @@ class RakamConnection(object):
 
             Raises a subclass of RakamError if request was unsuccessfull or a ConnectionTimeout occurs.
         """
-        url = self.rakam_url + self.query_uri
+        url = self.rakam_url + self.commit_uri
         api_key = self._get_master_key()
 
         request_kwargs = {
@@ -141,7 +141,7 @@ class RakamConnection(object):
         else:
             status_code = int(response.status_code)
             if status_code / 100 == 2:
-                return success
+                success = True
             elif status_code == 401:
                 raise InvalidKeyError("Invalid rakam key. Please check that you are using the master key.")
             elif status_code == 403:
