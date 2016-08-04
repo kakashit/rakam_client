@@ -29,6 +29,7 @@ class RakamConnection(object):
     bulk_uri = "/event/bulk"
     commit_uri = "/event/bulk/commit"
     query_uri = "/query/execute"
+    set_user_properties_uri = "/user/set_properties"
 
     def __init__(self, rakam_url, rakam_credentials=None, options=None):
         if options is None:
@@ -148,6 +149,54 @@ class RakamConnection(object):
                 self._raise_for_403(response)
             elif status_code == 409:
                 raise ConflictError("Another commit is being proccessed.")
+            else:
+                self._raise_for_unknown(response)
+
+        return success
+
+    def set_user_properties(self, _id, properties=None, timeout=None, raise_on_read_timeout=False):
+        url = self.rakam_url + self.set_user_properties_uri
+        api_key = self._get_write_key()
+
+        if properties is None:
+            properties = {}
+
+        request_kwargs = {
+            'headers': {
+                'Content-Type': 'application/json',
+            },
+            'data': json.dumps(
+                {
+                    'id': _id,
+                    'api': {
+                        'api_key': api_key,
+                    },
+                    'properties': properties,
+                }
+            )
+        }
+
+        if timeout is not None:
+            request_kwargs['timeout'] = timeout
+
+        success = False
+        try:
+            response = self._send_post(url, **request_kwargs)
+        except ReadTimeout:  # Read timeout is assumed to be processing
+            if raise_on_read_timeout:
+                raise RakamError("Read timeout on commit.")
+            else:
+                logger.info("Read timeout on commit, silently passing...")
+        except RequestException as request_exc:
+            raise RakamError("set_user_properties failed with: %s" % (request_exc,))
+        else:
+            status_code = int(response.status_code)
+            if status_code / 100 == 2:
+                success = True
+            elif status_code == 401:
+                raise InvalidKeyError("Invalid rakam key. Please check that you are using the write key.")
+            elif status_code == 403:
+                self._raise_for_403(response)
             else:
                 self._raise_for_unknown(response)
 

@@ -21,5 +21,9 @@ class RakamClient(object):
     def commit_bulk_events(self, timeout=None, raise_on_read_timeout=False):
         return self.connection.commit_bulk_events(timeout=timeout, raise_on_read_timeout=raise_on_read_timeout)
 
+    def set_user_properties(self, _id, properties=None, timeout=None, raise_on_read_timeout=False):
+        return self.connection.set_user_properties(
+            _id, properties=properties, timeout=timeout, raise_on_read_timeout=raise_on_read_timeout)
+
     def execute_sql(self, query, timeout=None):
         return self.connection.execute_sql(query, timeout=timeout)
