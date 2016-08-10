@@ -30,6 +30,7 @@ class RakamConnection(object):
     commit_uri = "/event/bulk/commit"
     query_uri = "/query/execute"
     set_user_properties_uri = "/user/set_properties"
+    user_batch_operations_uri = "/user/batch_operations"
 
     def __init__(self, rakam_url, rakam_credentials=None, options=None):
         if options is None:
@@ -184,9 +185,9 @@ class RakamConnection(object):
             response = self._send_post(url, **request_kwargs)
         except ReadTimeout:  # Read timeout is assumed to be processing
             if raise_on_read_timeout:
-                raise RakamError("Read timeout on commit.")
+                raise RakamError("Read timeout on set_user_properties.")
             else:
-                logger.info("Read timeout on commit, silently passing...")
+                logger.info("Read timeout on set_user_properties, silently passing...")
         except RequestException as request_exc:
             raise RakamError("set_user_properties failed with: %s" % (request_exc,))
         else:
@@ -201,6 +202,61 @@ class RakamConnection(object):
                 self._raise_for_unknown(response)
 
         return success
+
+    def user_batch_operations(self, operations, timeout=None, raise_on_read_timeout=False):
+        url = self.rakam_url + self.user_batch_operations_uri
+        api_key = self._get_master_key()
+
+        request_kwargs = {
+            'headers': {
+                'Content-Type': 'application/json',
+            },
+            'data': json.dumps(
+                {
+                    'api': {
+                        'api_key': api_key,
+                    },
+                    'data': operations,
+                }
+            ),
+        }
+
+        if timeout is not None:
+            request_kwargs['timeout'] = timeout
+
+        success = False
+        try:
+            response = self._send_post(url, **request_kwargs)
+        except ReadTimeout:  # Read timeout is assumed to be processing
+            if raise_on_read_timeout:
+                raise RakamError("Read timeout on user_batch_operations.")
+            else:
+                logger.info("Read timeout on user_batch_operations, silently passing...")
+        except RequestException as request_exc:
+            raise RakamError("user_batch_operations failed with: %s" % (request_exc,))
+        else:
+            status_code = int(response.status_code)
+            if status_code / 100 == 2:
+                success = True
+            elif status_code == 401:
+                raise InvalidKeyError("Invalid rakam key. Please check that you are using the master key.")
+            elif status_code == 403:
+                self._raise_for_403(response)
+            else:
+                self._raise_for_unknown(response)
+
+        return success
+
+    def user_batch_update(self, users, timeout=None, raise_on_read_timeout=False):
+        return self.user_batch_operations(
+            [
+                {
+                    'id': user['id'],
+                    'set_properties': user['properties'],
+                } for user in users
+            ],
+            timeout=timeout, raise_on_read_timeout=raise_on_read_timeout
+        )
 
     def execute_sql(self, query, timeout=None):
         url = self.rakam_url + self.query_uri

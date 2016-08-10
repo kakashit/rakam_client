@@ -6,7 +6,7 @@
 """
 
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 __author__ = 'Kaan Uğurlu'
 __contact__ = 'kugurlu94@gmail.com'
 __all__ = ['RakamClient', 'RakamCredentials']

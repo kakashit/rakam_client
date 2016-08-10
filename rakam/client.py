@@ -25,5 +25,11 @@ class RakamClient(object):
         return self.connection.set_user_properties(
             _id, properties=properties, timeout=timeout, raise_on_read_timeout=raise_on_read_timeout)
 
+    def user_batch_operations(self, operations, timeout=None, raise_on_read_timeout=False):
+        return self.connection.user_batch_operations(operations, timeout=timeout, raise_on_read_timeout=raise_on_read_timeout)
+
+    def user_batch_update(self, users, timeout=None, raise_on_read_timeout=False):
+        return self.connection.user_batch_update(users, timeout=timeout, raise_on_read_timeout=raise_on_read_timeout)
+
     def execute_sql(self, query, timeout=None):
         return self.connection.execute_sql(query, timeout=timeout)
