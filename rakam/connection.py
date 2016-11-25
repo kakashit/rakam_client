@@ -59,7 +59,7 @@ class RakamConnection(object):
                     data=json.dumps(
                         OrderedDict(
                             [
-                                ('api', {'writeKey': api_key}),
+                                ('api', {'api_key': api_key}),
                                 (
                                     'events',
                                     [
